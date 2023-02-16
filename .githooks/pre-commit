@@ -1,0 +1,5 @@
+#!/bin/sh
+
+# Run autoformatting and linting before commit
+pipenv run black .
+pipenv run pylint hwstats
