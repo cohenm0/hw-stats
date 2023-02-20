@@ -2,6 +2,33 @@
 # It's the equivalent of r-strings in Python.  Multiline strings are treated as
 # verbose regular expressions by Black.  Use [ ] to denote a significant space
 # character.
+# https://pip.pypa.io/en/stable/reference/build-system/pyproject-toml/
+# https://setuptools.pypa.io/en/latest/userguide/pyproject_config.html
+
+[build-system]
+requires = ["setuptools>=45", "setuptools-scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hwstats"
+authors = [
+    {name = "Mark Cohen", email = "mark.cohen1@marist.edu"},
+]
+description = "Utility to monitor system hardware metrics over time"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "BSD-3-Clause"}
+#version = "0.0.1"
+dynamic = ["version"]
+dependencies = [
+]
+
+# This is a setuptools entry point script
+#[project.scripts]
+#cli-name = "mypkg.mymodule:some_func"
+
+# Including this header will dynamically version the package based on the git tag
+[tool.setuptools_scm]
 
 [tool.black]
 line-length = 100
