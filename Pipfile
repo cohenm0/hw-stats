@@ -8,6 +8,7 @@ sqlalchemy = "*"
 flask = "*"
 build = "*"
 setuptools-scm = "*"
+psutil = "*"
 
 [dev-packages]
 black = "*"
