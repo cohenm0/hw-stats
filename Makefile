@@ -5,3 +5,4 @@ init:
 	pipenv run pip install --upgrade pip
 	pipenv run pre-commit install
 	pipenv run pre-commit autoupdate
+	pipenv shell
