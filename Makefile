@@ -1,5 +1,7 @@
+# Default make target
 init: dev
 
+# Make target to build a development environment
 dev:
 	@echo "Building development environment"
 	export PIPENV_VENV_IN_PROJECT
@@ -10,6 +12,7 @@ dev:
 	pipenv run pre-commit autoupdate
 	pipenv shell
 
+# Make target to build a code release
 release:
 	@echo "Building code release"
 	pipenv lock
