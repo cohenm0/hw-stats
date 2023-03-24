@@ -1,9 +1,7 @@
-init:
-	echo "Making Hardware Stats"
-	dev
+init: dev
 
 dev:
-	echo "Building development environment"
+	@echo "Building development environment"
 	export PIPENV_VENV_IN_PROJECT
 	pip install pipenv
 	pipenv install --dev
@@ -13,7 +11,7 @@ dev:
 	pipenv shell
 
 release:
-	echo "Building code release"
+	@echo "Building code release"
 	 pyinstaller \
 	 	--add-data hwstats/templates:templates \
 		--add-data hwstats/static:static  \
@@ -21,4 +19,4 @@ release:
 		--name hwstats \
 		--onefile \
 		hwstats/cli.py
-	echo "Build complete: ${PWD}/dist/hwstats"
+	@echo "Build complete: ${PWD}/dist/hwstats"
