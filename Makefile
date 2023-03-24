@@ -12,11 +12,18 @@ dev:
 
 release:
 	@echo "Building code release"
-	 pyinstaller \
+	pipenv lock
+	pipenv sync
+	pipenv requirements > requirements.txt
+
+	@echo "Building executable"
+	pyinstaller \
 	 	--add-data hwstats/templates:templates \
 		--add-data hwstats/static:static  \
 		--noconfirm \
 		--name hwstats \
 		--onefile \
 		hwstats/cli.py
-	@echo "Build complete: ${PWD}/dist/hwstats"
+
+	@echo "   Build complete!"
+	@echo "   Executable is: ${PWD}/dist/hwstats"
