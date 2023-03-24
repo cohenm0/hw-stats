@@ -1,6 +1,9 @@
+from datetime import datetime
+
 from psutil import Process
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+from sqlalchemy.sql.sqltypes import DateTime
 
 
 class Base(DeclarativeBase):
@@ -14,7 +17,9 @@ class SysProcess(Base):
 
     # id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(50))
+    pid: Mapped[int] = mapped_column()
     pidHash: Mapped[int] = mapped_column(primary_key=True)
+    createTime: Mapped[datetime] = mapped_column(DateTime)
 
     cpu: Mapped[list["CPU"]] = relationship(back_populates="process", cascade="all, delete-orphan")
     memory: Mapped[list["Memory"]] = relationship(
@@ -99,5 +104,7 @@ def build_sysprocess_from_process(process: Process) -> SysProcess:
     """Build a SysProcess record object from a process"""
     return SysProcess(
         pidHash=hash(process),
+        pid=process.pid,
         name=process.name(),
+        createTime=datetime.fromtimestamp(process.create_time()),
     )
