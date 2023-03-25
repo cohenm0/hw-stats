@@ -1,5 +1,5 @@
 # Default make target
-init: dev
+init: hwstats
 
 # Make target to build a development environment
 dev:
@@ -13,7 +13,7 @@ dev:
 	pipenv shell
 
 # Make target to build a code release
-release:
+hwstats: clean
 	@echo "Building code release"
 	pipenv lock
 	pipenv sync
@@ -30,3 +30,7 @@ release:
 
 	@echo "   Build complete!"
 	@echo "   Executable is: ${PWD}/dist/hwstats"
+
+clean:
+	@echo "Cleaning up old build data..."
+	rm -rf dist
