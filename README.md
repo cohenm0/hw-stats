@@ -1,13 +1,25 @@
 # hw-stats
 Python utility for Linux to track system hardware usage metrics
 
+## Installation
+To build `hw-stats` from source simply clone the repo and run `make`
+```bash
+git clone git@github.com:cohenm0/hw-stats.git
+cd hw-stats
+make
+```
+The application executable is created here:
+```
+hw-stats/dist/hwstats
+```
+
 ## How to contribute
 ### Quick start
 To start contributing in a Linux enviroonemt simply run the following:
 ```bash
 git clone git@github.com:cohenm0/hw-stats.git
 cd hw-stats
-make
+make dev
 ```
 
 ### Setting up a dev environment on Windows
