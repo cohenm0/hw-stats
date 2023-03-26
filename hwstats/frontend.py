@@ -1,3 +1,6 @@
+import os
+import sys
+
 from flask import Flask, render_template
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -5,7 +8,15 @@ from sqlalchemy.orm import Session
 from hwstats.backend import get_db_connection
 from hwstats.models import Base, SysProcess
 
-app = Flask(__name__)
+# When running from a pyinstaller executable, the templates and static folders are not found
+# Use sys._MEIPASS, to find the  PyInstaller temporary budle folder and pass it to Flask
+# Reference: https://github.com/ciscomonkey/flask-pyinstaller
+if getattr(sys, "frozen", False):
+    template_folder = os.path.join(sys._MEIPASS, "templates")
+    static_folder = os.path.join(sys._MEIPASS, "static")
+    app = Flask(__name__, template_folder=template_folder, static_folder=static_folder)
+else:
+    app = Flask(__name__)
 
 
 async def start_app():
