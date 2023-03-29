@@ -20,7 +20,7 @@ hwstats: clean
 	pipenv requirements > requirements.txt
 
 	@echo "Building executable"
-	pyinstaller \
+	pipenv run pyinstaller \
 	 	--add-data hwstats/templates:templates \
 		--add-data hwstats/static:static  \
 		--noconfirm \
