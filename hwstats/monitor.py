@@ -9,13 +9,6 @@ from hwstats import models
 from hwstats.backend import get_db_connection
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
-formatter = logging.Formatter("%(filename)s:%(lineno)d:%(levelname)s:%(message)s")
-
-ch = logging.StreamHandler()
-ch.setLevel(logging.DEBUG)
-ch.setFormatter(formatter)
-logger.addHandler(ch)
 
 COLLECTION_INTERVAL = 0.1
 TIMEOUT = 10
@@ -24,7 +17,6 @@ TIMEOUT = 10
 async def start_metrics_collection():
     """Start collecting metrics"""
     # SQLAlchemy logging: https://docs.sqlalchemy.org/en/20/core/engines.html#configuring-logging
-    logging.basicConfig()
     logging.getLogger("sqlalchemy").setLevel(logging.WARNING)
 
     engine = get_db_connection()
