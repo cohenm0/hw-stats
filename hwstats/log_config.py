@@ -1,7 +1,7 @@
 import logging
 
 
-def configure_logging():
+def configure_logging() -> None:
     """Configure logging for the entire application"""
     # Define a console handler that logs messages to the terminal
     console_handler = logging.StreamHandler()

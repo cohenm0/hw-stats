@@ -14,7 +14,7 @@ COLLECTION_INTERVAL = 0.1
 TIMEOUT = 10
 
 
-async def start_metrics_collection():
+async def start_metrics_collection() -> None:
     """Start collecting metrics"""
     # SQLAlchemy logging: https://docs.sqlalchemy.org/en/20/core/engines.html#configuring-logging
     logging.getLogger("sqlalchemy").setLevel(logging.WARNING)

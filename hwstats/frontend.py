@@ -29,7 +29,7 @@ async def start_app():
 
 
 @app.route("/")
-def index():
+def index() -> str:
     """Retrieve the index page"""
     engine = get_db_connection()
     Base.metadata.create_all(engine)

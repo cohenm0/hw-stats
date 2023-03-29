@@ -6,7 +6,7 @@ from hwstats.log_config import configure_logging
 from hwstats.monitor import start_metrics_collection
 
 
-async def main():
+async def main() -> None:
     """Start the app and start collecting metrics"""
     await start_metrics_collection()
     await start_app()
