@@ -6,6 +6,7 @@ from flask import Flask, render_template
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from hwstats import DB_PATH
 from hwstats.backend import get_db_connection
 from hwstats.models import Base, SysProcess
 
@@ -23,7 +24,7 @@ else:
     app = Flask(__name__)
 
 
-async def start_app():
+def start_app():
     """Start the Flask app"""
     app.run()
 
@@ -31,7 +32,7 @@ async def start_app():
 @app.route("/")
 def index() -> str:
     """Retrieve the index page"""
-    engine = get_db_connection()
+    engine = get_db_connection(DB_PATH)
     Base.metadata.create_all(engine)
     session = Session(engine)
     statement = select(SysProcess)
