@@ -108,6 +108,8 @@ disable=
     format,
     # We anticipate #3512 where it will become optional
     fixme,
+    # diabling Use lazy % formatting in logging functions (logging-fstring-interpolation)
+    W1203,
 
 
 [REPORTS]

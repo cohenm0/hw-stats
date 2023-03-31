@@ -1,3 +1,4 @@
+import logging
 import os
 import sys
 
@@ -8,12 +9,15 @@ from sqlalchemy.orm import Session
 from hwstats.backend import get_db_connection
 from hwstats.models import Base, SysProcess
 
+logger = logging.getLogger(__name__)
+
 # When running from a pyinstaller executable, the templates and static folders are not found
 # Use sys._MEIPASS, to find the  PyInstaller temporary budle folder and pass it to Flask
 # Reference: https://github.com/ciscomonkey/flask-pyinstaller
 if getattr(sys, "frozen", False):
     template_folder = os.path.join(sys._MEIPASS, "templates")
     static_folder = os.path.join(sys._MEIPASS, "static")
+    logger.debug(f"Using template folder: {template_folder}")
     app = Flask(__name__, template_folder=template_folder, static_folder=static_folder)
 else:
     app = Flask(__name__)
@@ -25,7 +29,7 @@ async def start_app():
 
 
 @app.route("/")
-def index():
+def index() -> str:
     """Retrieve the index page"""
     engine = get_db_connection()
     Base.metadata.create_all(engine)
