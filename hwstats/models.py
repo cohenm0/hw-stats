@@ -44,7 +44,7 @@ class CPU(Base):
     userTime: Mapped[float] = mapped_column()
     systemTime: Mapped[float] = mapped_column()
     threads: Mapped[int] = mapped_column()
-    upTime: Mapped[float] = mapped_column()
+    # upTime: Mapped[float] = mapped_column()
 
     process: Mapped["SysProcess"] = relationship(back_populates="cpu")
 
