@@ -18,7 +18,7 @@ pylint = "*"
 pyinstaller = "*"
 setuptools-scm = "*"
 build = "*"
-#hwstats = {editable = true, path = "."}
+hwstats = {editable = true, path = "."}
 pytest = "*"
 pytest-cov = "*"
 
