@@ -1,5 +1,7 @@
-init: dev
+# Default make target
+init: hwstats
 
+# Make target to build a development environment
 dev:
 	@echo "Building development environment"
 	export PIPENV_VENV_IN_PROJECT
@@ -10,14 +12,15 @@ dev:
 	pipenv run pre-commit autoupdate
 	pipenv shell
 
-release:
+# Make target to build a code release
+hwstats: clean
 	@echo "Building code release"
 	pipenv lock
 	pipenv sync
 	pipenv requirements > requirements.txt
 
 	@echo "Building executable"
-	pyinstaller \
+	pipenv run pyinstaller \
 	 	--add-data hwstats/templates:templates \
 		--add-data hwstats/static:static  \
 		--noconfirm \
@@ -27,3 +30,7 @@ release:
 
 	@echo "   Build complete!"
 	@echo "   Executable is: ${PWD}/dist/hwstats"
+
+clean:
+	@echo "Cleaning up old build data..."
+	rm -rf dist

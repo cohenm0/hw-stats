@@ -19,6 +19,8 @@ pyinstaller = "*"
 setuptools-scm = "*"
 build = "*"
 #hwstats = {editable = true, path = "."}
+pytest = "*"
+pytest-cov = "*"
 
 [requires]
 python_version = "3.10"
