@@ -1,14 +1,18 @@
 import os
-from pathlib import Path
 
 from sqlalchemy.engine.base import Engine
 
 from hwstats.backend import get_db_connection
+from hwstats.models import Base
 
 
-def test_get_db_connection(tmp_path: Path) -> None:
+def test_get_db_connection(db_path: str) -> None:
     """Test the get_db_connection function"""
-    database_path = tmp_path / "test.db"
-    engine = get_db_connection(database_path)
+    engine = get_db_connection(db_path)
+    # The db is not created until we call create_all
+    Base.metadata.create_all(engine)
     assert isinstance(engine, Engine)
-    assert os.path.exists(database_path)
+    assert os.path.exists(db_path)
+
+    # Cleanup
+    os.remove(db_path)
