@@ -30,5 +30,8 @@ dependencies = [
 # Including this header will dynamically version the package based on the git tag
 [tool.setuptools_scm]
 
+[tool.setuptools]
+packages = ["hwstats"]
+
 [tool.black]
 line-length = 100
