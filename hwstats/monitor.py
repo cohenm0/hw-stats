@@ -32,7 +32,8 @@ def start_metrics_collection(
         collect_metrics(engine)
         sleep(collection_interval)
         if time() - start_time > timeout and timeout != 0:
-            break
+            logger.warning("Stopping collection")
+            return
 
 
 def collect_metrics(engine: Engine) -> None:
