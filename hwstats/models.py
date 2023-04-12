@@ -15,7 +15,7 @@ class SysProcess(Base):
 
     __tablename__ = "system_process"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    # id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(50))
     pid: Mapped[int] = mapped_column()
     pidHash: Mapped[int] = mapped_column(primary_key=True)
