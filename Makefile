@@ -1,10 +1,12 @@
+.PHONY: dev
+export PIPENV_VENV_IN_PROJECT := 1
+
 # Default make target
 init: hwstats
 
 # Make target to build a development environment
 dev:
 	@echo "Building development environment"
-	export PIPENV_VENV_IN_PROJECT
 	pip install pipenv
 	pipenv install --dev
 	pipenv run pip install --upgrade pip
