@@ -15,7 +15,7 @@ class SysProcess(Base):
 
     __tablename__ = "system_process"
 
-    # id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(50))
     pid: Mapped[int] = mapped_column()
     pidHash: Mapped[int] = mapped_column(primary_key=True)
@@ -44,7 +44,7 @@ class CPU(Base):
     userTime: Mapped[float] = mapped_column()
     systemTime: Mapped[float] = mapped_column()
     threads: Mapped[int] = mapped_column()
-    # upTime: Mapped[float] = mapped_column()
+    upTime: Mapped[float] = mapped_column()
 
     process: Mapped["SysProcess"] = relationship(back_populates="cpu")
 
@@ -60,7 +60,7 @@ class Memory(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     pidHash: Mapped[int] = mapped_column(ForeignKey("system_process.pidHash"))
     memoryPercent: Mapped[float] = mapped_column()
-    # memoryInfo: Mapped[list[float]] = mapped_column()
+    memoryInfo: Mapped[list[float]] = mapped_column()
 
     process: Mapped["SysProcess"] = relationship(back_populates="memory")
 
@@ -75,8 +75,8 @@ class Disk(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     pidHash: Mapped[int] = mapped_column(ForeignKey("system_process.pidHash"))
-    # diskIO: Mapped[list[float]] = mapped_column()
-
+    diskTime: Mapped[float] = mapped_column()
+    diskIO: Mapped[list[float]] = mapped_column()
     process: Mapped["SysProcess"] = relationship(back_populates="disk")
 
     def __repr__(self) -> str:
@@ -98,7 +98,7 @@ def build_memory_from_process(process: Process) -> Memory:
     return Memory(
         pidHash=hash(process),
         memoryPercent=process.memory_percent(),
-        # memoryInfo=process.memory_info(),
+        memoryInfo=process.memory_info(),
     )
 
 
