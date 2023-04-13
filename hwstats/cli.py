@@ -1,12 +1,13 @@
 import logging
 from multiprocessing import Process
 
+from hwstats import DB_PATH
 from hwstats.frontend import start_app
 from hwstats.log_config import configure_logging
 from hwstats.monitor import start_metrics_collection
 
 COLLECTION_INTERVAL_SECONDS = 0.1
-TIMEOUT_SECONDS = 30
+TIMEOUT_SECONDS = 200
 
 
 if __name__ == "__main__":
@@ -15,7 +16,9 @@ if __name__ == "__main__":
     logger.info("Starting the Hardware Stats monitoring application")
 
     metrics_process = Process(
-        target=start_metrics_collection, args=(COLLECTION_INTERVAL_SECONDS, TIMEOUT_SECONDS)
+        target=start_metrics_collection,
+        args=[COLLECTION_INTERVAL_SECONDS],
+        kwargs={"timeout": TIMEOUT_SECONDS, "db_path": DB_PATH},
     )
     app_process = Process(target=start_app)
 

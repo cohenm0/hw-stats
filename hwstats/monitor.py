@@ -11,12 +11,19 @@ from hwstats.backend import get_db_connection
 logger = logging.getLogger(__name__)
 
 
-def start_metrics_collection(collection_interval: float, timeout: float = 0) -> None:
-    """Start collecting metrics"""
+def start_metrics_collection(
+    collection_interval: float, timeout: float = 0, db_path: str = DB_PATH
+) -> None:
+    """
+    Start collecting metrics
+    :param collection_interval: How often to collect metrics
+    :param timeout: How long to collect metrics for. If 0, collect forever
+    :param db_path: Path to the database file
+    """
     # SQLAlchemy logging: https://docs.sqlalchemy.org/en/20/core/engines.html#configuring-logging
     logging.getLogger("sqlalchemy").setLevel(logging.WARNING)
 
-    engine = get_db_connection(DB_PATH)
+    engine = get_db_connection(db_path)
     models.Base.metadata.create_all(engine)
 
     start_time = time()
@@ -25,7 +32,8 @@ def start_metrics_collection(collection_interval: float, timeout: float = 0) -> 
         collect_metrics(engine)
         sleep(collection_interval)
         if time() - start_time > timeout and timeout != 0:
-            break
+            logger.warning("Stopping collection")
+            return
 
 
 def collect_metrics(engine: Engine) -> None:
