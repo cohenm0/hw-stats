@@ -1,6 +1,7 @@
 from datetime import datetime
 
 import psutil
+import xxhash
 from psutil import Process
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
@@ -19,7 +20,7 @@ class SysProcess(Base):
     # id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(50))
     pid: Mapped[int] = mapped_column()
-    pidHash: Mapped[int] = mapped_column(primary_key=True)
+    pidHash: Mapped[str] = mapped_column(primary_key=True)
     createTime: Mapped[datetime] = mapped_column(DateTime)
 
     cpu: Mapped[list["CPU"]] = relationship(back_populates="process", cascade="all, delete-orphan")
@@ -40,7 +41,7 @@ class CPU(Base):
     __tablename__ = "cpu"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    pidHash: Mapped[int] = mapped_column(ForeignKey("system_process.pidHash"))
+    pidHash: Mapped[str] = mapped_column(ForeignKey("system_process.pidHash"))
     cpuPercent: Mapped[float] = mapped_column()
     userTime: Mapped[float] = mapped_column()
     systemTime: Mapped[float] = mapped_column()
@@ -60,7 +61,7 @@ class Memory(Base):
     __tablename__ = "memory"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    pidHash: Mapped[int] = mapped_column(ForeignKey("system_process.pidHash"))
+    pidHash: Mapped[str] = mapped_column(ForeignKey("system_process.pidHash"))
     memoryPercent: Mapped[float] = mapped_column(default=0.0)
     memoryRSS: Mapped[int] = mapped_column()
 
@@ -76,7 +77,7 @@ class Disk(Base):
     __tablename__ = "disk"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    pidHash: Mapped[int] = mapped_column(ForeignKey("system_process.pidHash"))
+    pidHash: Mapped[str] = mapped_column(ForeignKey("system_process.pidHash"))
     # diskTime: Mapped[float] = mapped_column()
     diskRead: Mapped[int] = mapped_column()
     diskWrite: Mapped[int] = mapped_column()
@@ -86,10 +87,15 @@ class Disk(Base):
         return f"Disk(id={self.id}, pidHash={self.pidHash})"
 
 
+def hash_process(process: Process) -> str:
+    """Fast, low collision hash of a process"""
+    return xxhash.xxh3_64(str(process).encode("utf-8")).hexdigest()
+
+
 def build_cpu_from_process(process: Process) -> CPU:
     """Build CPU record object from a process"""
     return CPU(
-        pidHash=hash(process),
+        pidHash=hash_process(process),
         cpuPercent=process.cpu_percent(),
         systemTime=process.cpu_times().system,
         userTime=process.cpu_times().user,
@@ -102,7 +108,7 @@ def build_cpu_from_process(process: Process) -> CPU:
 def build_memory_from_process(process: Process) -> Memory:
     """Build Memory record object from a process"""
     return Memory(
-        pidHash=hash(process),
+        pidHash=hash_process(process),
         memoryPercent=process.memory_percent(),
         memoryRSS=process.memory_info().rss,
     )
@@ -119,7 +125,7 @@ def build_disk_from_process(process: Process) -> Disk:
     except (PermissionError, psutil.AccessDenied):
         _diskWrite = 0
     return Disk(
-        pidHash=hash(process),
+        pidHash=hash_process(process),
         diskRead=_diskRead,
         diskWrite=_diskWrite,
     )
@@ -128,7 +134,7 @@ def build_disk_from_process(process: Process) -> Disk:
 def build_sysprocess_from_process(process: Process) -> SysProcess:
     """Build a SysProcess record object from a process"""
     return SysProcess(
-        pidHash=hash(process),
+        pidHash=hash_process(process),
         pid=process.pid,
         name=process.name(),
         createTime=datetime.fromtimestamp(process.create_time()),
