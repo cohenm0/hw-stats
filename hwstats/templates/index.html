@@ -21,7 +21,7 @@
     </tr>
     {% for process in process_list %}
     <tr>
-        <td><a href="">{{ process.name }}</a></td>
+        <td><a href="{{ url_for('process_plot', pid_hash=process.pidHash) }}">{{ process.name }}</a></td>
         <td>{{ process.pid }}</td>
         <td>{{ process.avg_cpu_percent|round(2) }}</td>
         <td>{{ process.avg_memory_percent|round(2) }}</td>
