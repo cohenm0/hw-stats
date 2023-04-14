@@ -59,3 +59,16 @@ def index_table_query(session: Session) -> list[tuple]:
         .group_by(SysProcess.name, SysProcess.pid, SysProcess.createTime, SysProcess.pidHash)
     )
     return statement.all()
+
+
+def query_cpu_percent_with_time(pid_hash: int, session: Session) -> list[tuple]:
+    """
+    Query the DB session to get a list of tuples containing the CPU percent and measurement time
+    :param pid_hash: pidHash of the process
+    :param session: SQLAlchemy session
+    :return: list of tuples containing CPU percent and measurement time
+    """
+    result = (
+        session.query(CPU.measurementTime, CPU.cpuPercent).filter(CPU.pidHash == pid_hash).all()
+    )
+    return result
