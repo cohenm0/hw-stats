@@ -76,7 +76,8 @@ class Disk(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     pidHash: Mapped[int] = mapped_column(ForeignKey("system_process.pidHash"))
     diskTime: Mapped[float] = mapped_column()
-    diskIO: Mapped[list[float]] = mapped_column()
+    diskRead: Mapped[int] = mapped_column()
+    diskWrite: Mapped[int] = mapped_column()
     process: Mapped["SysProcess"] = relationship(back_populates="disk")
 
     def __repr__(self) -> str:
