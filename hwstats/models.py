@@ -99,7 +99,7 @@ def build_memory_from_process(process: Process) -> Memory:
     return Memory(
         pidHash=hash(process),
         memoryPercent=process.memory_percent(),
-        memoryInfo=process.memory_info().rss,
+        memoryRSS=process.memory_info().rss,
     )
 
 
