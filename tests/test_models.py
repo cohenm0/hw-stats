@@ -19,3 +19,9 @@ def test_memory_builder():
     """Test the SysProcess builder"""
     process = hwstats.models.build_memory_from_process(psutil.Process())
     assert isinstance(process, hwstats.models.Memory)
+
+
+def test_disk_builder():
+    """Test the SysProcess builder"""
+    process = hwstats.models.build_disk_from_process(psutil.Process())
+    assert isinstance(process, hwstats.models.Disk)
