@@ -22,7 +22,7 @@ def get_db_connection(database_path: str) -> Engine:
     return create_engine(f"sqlite:///{database_path}")
 
 
-def get_cpu_percents_for_pidHash(pid_hash: int, session: Session) -> list[float]:
+def get_cpu_percents_for_pidHash(pid_hash: str, session: Session) -> list[float]:
     """
     Query the DB session to get a list of CPU percents for a given pidHash
     :param pid_hash: pidHash of the process
@@ -61,7 +61,7 @@ def index_table_query(session: Session) -> list[tuple]:
     return statement.all()
 
 
-def query_cpu_percent_with_time(pid_hash: int, session: Session) -> list[tuple]:
+def query_cpu_percent_with_time(pid_hash: str, session: Session) -> list[tuple]:
     """
     Query the DB session to get a list of tuples containing the CPU percent and measurement time
     :param pid_hash: pidHash of the process
