@@ -5,11 +5,10 @@ import sys
 from flask import Flask, render_template
 from jinja2 import Environment, PackageLoader
 from sqlalchemy.orm import Session
-from sqlalchemy.sql import func
 
 from hwstats import DB_PATH
-from hwstats.backend import get_db_connection
-from hwstats.models import CPU, Base, Memory, SysProcess
+from hwstats.backend import get_db_connection, index_table_query
+from hwstats.models import Base
 
 logger = logging.getLogger(__name__)
 
@@ -45,19 +44,7 @@ def index() -> str:
     engine = get_db_connection(DB_PATH)
     Base.metadata.create_all(engine)
     session = Session(engine)
-    statement = (
-        session.query(
-            SysProcess.name,
-            SysProcess.pid,
-            SysProcess.createTime,
-            SysProcess.pidHash,
-            func.avg(CPU.cpuPercent).label("avg_cpu_percent"),
-            func.avg(Memory.memoryPercent).label("avg_memory_percent"),
-        )
-        .outerjoin(CPU, SysProcess.pidHash == CPU.pidHash)
-        .outerjoin(Memory, SysProcess.pidHash == Memory.pidHash)
-        .group_by(SysProcess.name, SysProcess.pid, SysProcess.createTime, SysProcess.pidHash)
-    )
-    process_list = statement.all()
+
+    process_list = index_table_query(session)
 
     return render_template("index.html", process_list=process_list)
