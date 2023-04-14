@@ -44,7 +44,7 @@ class CPU(Base):
     userTime: Mapped[float] = mapped_column()
     systemTime: Mapped[float] = mapped_column()
     threads: Mapped[int] = mapped_column()
-    upTime: Mapped[float] = mapped_column()
+    # idleTime: Mapped[float] = mapped_column()
 
     process: Mapped["SysProcess"] = relationship(back_populates="cpu")
 
@@ -91,6 +91,8 @@ def build_cpu_from_process(process: Process) -> CPU:
         cpuPercent=process.cpu_percent(),
         systemTime=process.cpu_times().system,
         userTime=process.cpu_times().user,
+        threads=process.num_threads(),
+        # idleTime=process.cpu_times().idle,
     )
 
 
