@@ -27,12 +27,14 @@ def test_cpu_load(db_path: str) -> None:
     stress_cmd = ["stress-ng", "--cpu", "1", "--cpu-load", f"{TEST_CPU_LOAD}", "--timeout", "30s"]
     with subprocess.Popen(stress_cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT) as stress:
         # stress = subprocess.Popen(stress_cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        print(f"Process pid is {stress.pid}")
         stress_process = psutil.Process(stress.pid)
 
         # We need to wait for stress-ng to start it's child processes
         sleep(5)
         child_process = stress_process.children()[0]
         stress_child_hash = hash(child_process)
+        print(stress.stdout.read().decode("utf-8"))
 
     # Wait for metrics collection to finish
     metrics_process.join()
@@ -41,7 +43,9 @@ def test_cpu_load(db_path: str) -> None:
     engine = get_db_connection(db_path)
     session = Session(engine)
 
+    print(f"Stress_child_hash: {stress_child_hash}")
     stress_cpu_percents = get_cpu_percents_for_pidHash(stress_child_hash, session)
+    assert len(stress_cpu_percents) > 0
     avg_stress = sum(stress_cpu_percents) / len(stress_cpu_percents)
 
     # Test that the average CPU load is within 10% of the expected load
