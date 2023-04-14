@@ -2,25 +2,27 @@
 
 {% block content %}
 <h1>{% block title %} Welcome to Hardware Stats {% endblock %}</h1>
-{% for process in process_list %}
-<div class="card">
-    <div class="card-body">
-        <a href="#">
-            <h5 class="card-title">{{ process.name }}</h5>
-        </a>
-        <div class="row">
-            <!-- By default Bootsrap uses a 12 column grid. The col-md-# tells each column how many spaces to take up -->
-            <div class="col-md-2">
-                <p class="card-text">pid: {{ process.pid }}</p>
-            </div>
-            <div class="col-md-4">
-                <p class="card-text">Started: {{ process.createTime }}</p>
-            </div>
-            <div class="col-md-4">
-                <p class="card-text">pidHash: {{ process.pidHash }}</p>
-            </div>
-        </div>
-    </div>
-</div>
-{% endfor %}
+<h1>Processes table </h1>
+    <style>
+    table, th, td {
+      border:1px solid black;
+    }
+    </style>
+
+    <table style="width: 100%;">
+        <tr>
+            <th> Process name</th>
+            <th> Process id</th>
+            <th> Process creation Time</th>
+            <th> Proces Hashed Id</th>
+        </tr>
+        {% for process in process_list %}
+        <tr>
+            <td><a href="">{{ process.name }}</a></td>
+            <td>{{ process.pid }}</td>
+            <td>{{ process.createTime }}</td>
+            <td>{{ process.pidHash }}</td>
+        </tr>
+    {% endfor %}
+    </table>
 {% endblock %}

@@ -43,6 +43,8 @@ class CPU(Base):
     cpuPercent: Mapped[float] = mapped_column()
     userTime: Mapped[float] = mapped_column()
     systemTime: Mapped[float] = mapped_column()
+    threads: Mapped[int] = mapped_column()
+    upTime: Mapped[float] = mapped_column()
 
     process: Mapped["SysProcess"] = relationship(back_populates="cpu")
 
@@ -58,7 +60,7 @@ class Memory(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     pidHash: Mapped[int] = mapped_column(ForeignKey("system_process.pidHash"))
     memoryPercent: Mapped[float] = mapped_column()
-    # memoryInfo: Mapped[list[float]] = mapped_column()
+    memoryRSS: Mapped[int] = mapped_column()
 
     process: Mapped["SysProcess"] = relationship(back_populates="memory")
 
@@ -73,8 +75,9 @@ class Disk(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     pidHash: Mapped[int] = mapped_column(ForeignKey("system_process.pidHash"))
-    # diskIO: Mapped[list[float]] = mapped_column()
-
+    diskTime: Mapped[float] = mapped_column()
+    diskRead: Mapped[int] = mapped_column()
+    diskWrite: Mapped[int] = mapped_column()
     process: Mapped["SysProcess"] = relationship(back_populates="disk")
 
     def __repr__(self) -> str:
@@ -96,7 +99,7 @@ def build_memory_from_process(process: Process) -> Memory:
     return Memory(
         pidHash=hash(process),
         memoryPercent=process.memory_percent(),
-        # memoryInfo=process.memory_info(),
+        memoryRSS=process.memory_info().rss,
     )
 
 
