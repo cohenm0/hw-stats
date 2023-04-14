@@ -3,26 +3,30 @@
 {% block content %}
 <h1>{% block title %} Welcome to Hardware Stats {% endblock %}</h1>
 <h1>Processes table </h1>
-    <style>
-    table, th, td {
-      border:1px solid black;
+<style>
+    table,
+    th,
+    td {
+        border: 1px solid black;
     }
-    </style>
+</style>
 
-    <table style="width: 100%;">
-        <tr>
-            <th> Process name</th>
-            <th> Process id</th>
-            <th> Process creation Time</th>
-            <th> Proces Hashed Id</th>
-        </tr>
-        {% for process in process_list %}
-        <tr>
-            <td><a href="">{{ process.name }}</a></td>
-            <td>{{ process.pid }}</td>
-            <td>{{ process.createTime }}</td>
-            <td>{{ process.pidHash }}</td>
-        </tr>
+<table style="width: 100%;">
+    <tr>
+        <th> Process name</th>
+        <th> Process id</th>
+        <th> Average CPU percent</th>
+        <th> Average Memory percent</th>
+        <th> Process creation Time</th>
+    </tr>
+    {% for process in process_list %}
+    <tr>
+        <td><a href="">{{ process.name }}</a></td>
+        <td>{{ process.pid }}</td>
+        <td>{{ process.avg_cpu_percent|round(2) }}</td>
+        <td>{{ process.avg_memory_percent|round(2) }}</td>
+        <td>{{ process.createTime.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+    </tr>
     {% endfor %}
-    </table>
+</table>
 {% endblock %}
