@@ -7,7 +7,7 @@ from hwstats.log_config import configure_logging
 from hwstats.monitor import start_metrics_collection
 
 COLLECTION_INTERVAL_SECONDS = 0.1
-TIMEOUT_SECONDS = 200
+TIMEOUT_SECONDS = 0
 
 
 if __name__ == "__main__":
