@@ -60,7 +60,7 @@ class Memory(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     pidHash: Mapped[int] = mapped_column(ForeignKey("system_process.pidHash"))
     memoryPercent: Mapped[float] = mapped_column()
-    memoryInfo: Mapped[list[float]] = mapped_column()
+    memoryRSS: Mapped[int] = mapped_column()
 
     process: Mapped["SysProcess"] = relationship(back_populates="memory")
 

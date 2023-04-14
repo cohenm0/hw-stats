@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "7c013efb1323b10f3970e3115becfdc08a435675630e666e39e6967b507c002e"
+            "sha256": "7906e22991eee998a75b68f27810d34bb556c93deb1e396ac436b07e633270a2"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -97,6 +97,10 @@
             ],
             "markers": "platform_machine == 'aarch64' or (platform_machine == 'ppc64le' or (platform_machine == 'x86_64' or (platform_machine == 'amd64' or (platform_machine == 'AMD64' or (platform_machine == 'win32' or platform_machine == 'WIN32')))))",
             "version": "==2.0.2"
+        },
+        "hwstats": {
+            "editable": true,
+            "path": "."
         },
         "itsdangerous": {
             "hashes": [
