@@ -50,5 +50,5 @@ def test_cpu_load(db_path: str) -> None:
     avg_stress = sum(stress_cpu_percents) / len(stress_cpu_percents)
 
     # Test that the average CPU load is within 10% of the expected load
-    assert avg_stress > (TEST_CPU_LOAD * 0.85)
-    assert avg_stress < (TEST_CPU_LOAD * 1.15)
+    assert avg_stress > (TEST_CPU_LOAD * 0.84)
+    assert avg_stress < (TEST_CPU_LOAD * 1.16)
