@@ -8,6 +8,8 @@ sqlalchemy = "*"
 flask = "*"
 psutil = "*"
 hwstats = {editable = true, path = "."}
+plotly = "*"
+xxhash = "*"
 
 [dev-packages]
 black = "*"
