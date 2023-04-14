@@ -1,5 +1,6 @@
 from datetime import datetime
 
+import psutil
 from psutil import Process
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
@@ -59,7 +60,7 @@ class Memory(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     pidHash: Mapped[int] = mapped_column(ForeignKey("system_process.pidHash"))
-    memoryPercent: Mapped[float] = mapped_column()
+    memoryPercent: Mapped[float] = mapped_column(default=0.0)
     memoryRSS: Mapped[int] = mapped_column()
 
     process: Mapped["SysProcess"] = relationship(back_populates="memory")
@@ -75,7 +76,7 @@ class Disk(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     pidHash: Mapped[int] = mapped_column(ForeignKey("system_process.pidHash"))
-    diskTime: Mapped[float] = mapped_column()
+    # diskTime: Mapped[float] = mapped_column()
     diskRead: Mapped[int] = mapped_column()
     diskWrite: Mapped[int] = mapped_column()
     process: Mapped["SysProcess"] = relationship(back_populates="disk")
@@ -102,6 +103,23 @@ def build_memory_from_process(process: Process) -> Memory:
         pidHash=hash(process),
         memoryPercent=process.memory_percent(),
         memoryRSS=process.memory_info().rss,
+    )
+
+
+def build_disk_from_process(process: Process) -> Disk:
+    """Build Disk record object from a process"""
+    try:
+        _diskRead = process.io_counters().read_count
+    except (PermissionError, psutil.AccessDenied):
+        _diskRead = 0
+    try:
+        _diskWrite = process.io_counters().write_count
+    except (PermissionError, psutil.AccessDenied):
+        _diskWrite = 0
+    return Disk(
+        pidHash=hash(process),
+        diskRead=_diskRead,
+        diskWrite=_diskWrite,
     )
 
 
