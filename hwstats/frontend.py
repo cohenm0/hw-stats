@@ -55,8 +55,8 @@ def index() -> str:
     return render_template("index.html", process_list=process_list)
 
 
-@app.route("/process/<int:pid_hash>/plot")
-def process_plot(pid_hash: int) -> str:
+@app.route("/process/<string:pid_hash>/plot")
+def process_plot(pid_hash: str) -> str:
     """Retrieve the process plot page"""
     engine = get_db_connection(DB_PATH)
     session = Session(engine)
