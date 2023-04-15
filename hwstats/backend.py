@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 
 from sqlalchemy import create_engine
 from sqlalchemy.engine.base import Engine
@@ -61,7 +62,7 @@ def index_table_query(session: Session) -> list[tuple]:
     return statement.all()
 
 
-def query_cpu_percent_with_time(pid_hash: str, session: Session) -> list[tuple]:
+def query_cpu_percent_with_time(pid_hash: str, session: Session) -> list[tuple[datetime, float]]:
     """
     Query the DB session to get a list of tuples containing the CPU percent and measurement time
     :param pid_hash: pidHash of the process
@@ -69,20 +70,22 @@ def query_cpu_percent_with_time(pid_hash: str, session: Session) -> list[tuple]:
     :return: list of tuples containing CPU percent and measurement time
     """
     result = (
-        session.query(CPU.measurementTime, CPU.cpuPercent).filter(CPU.pidHash == pid_hash).all()
+        session.query(CPU.measurementTime.label("timestamp"), CPU.cpuPercent.label("data"))
+        .filter(CPU.pidHash == pid_hash)
+        .all()
     )
     return result
 
 
-def query_memory_percent_with_time(pid_hash: str, session: Session) -> list[tuple]:
+def query_memory_percent_with_time(pid_hash: str, session: Session) -> list[tuple[datetime, float]]:
     """
-    Query the DB session to get a list of tuples containing the memory percent and measurement time
+    Query the DB session to get a list of named tuples containing the memory percent and measurement time
     :param pid_hash: pidHash of the process
     :param session: SQLAlchemy session
-    :return: list of tuples containing memory percent and measurement time
+    :return: list of named tuples containing memory percent and measurement time
     """
     result = (
-        session.query(Memory.measurementTime, Memory.memoryPercent)
+        session.query(Memory.measurementTime.label("timestamp"), Memory.memoryPercent.label("data"))
         .filter(Memory.pidHash == pid_hash)
         .all()
     )
