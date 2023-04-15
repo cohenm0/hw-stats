@@ -64,6 +64,7 @@ class Memory(Base):
     pidHash: Mapped[str] = mapped_column(ForeignKey("system_process.pidHash"))
     memoryPercent: Mapped[float] = mapped_column(default=0.0)
     memoryRSS: Mapped[int] = mapped_column()
+    measurementTime: Mapped[datetime] = mapped_column(DateTime)
 
     process: Mapped["SysProcess"] = relationship(back_populates="memory")
 
@@ -81,6 +82,8 @@ class Disk(Base):
     # diskTime: Mapped[float] = mapped_column()
     diskRead: Mapped[int] = mapped_column()
     diskWrite: Mapped[int] = mapped_column()
+    measurementTime: Mapped[datetime] = mapped_column(DateTime)
+
     process: Mapped["SysProcess"] = relationship(back_populates="disk")
 
     def __repr__(self) -> str:
@@ -111,6 +114,7 @@ def build_memory_from_process(process: Process) -> Memory:
         pidHash=hash_process(process),
         memoryPercent=process.memory_percent(),
         memoryRSS=process.memory_info().rss,
+        measurementTime=datetime.now(),
     )
 
 
@@ -128,6 +132,7 @@ def build_disk_from_process(process: Process) -> Disk:
         pidHash=hash_process(process),
         diskRead=_diskRead,
         diskWrite=_diskWrite,
+        measurementTime=datetime.now(),
     )
 
 
