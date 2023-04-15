@@ -44,7 +44,9 @@ def collect_metrics(engine: Engine) -> None:
                 _sysprocess = models.build_sysprocess_from_process(_process)
 
                 _cpu = models.build_cpu_from_process(_process)
+                _memory = models.build_memory_from_process(_process)
+                _disk = models.build_disk_from_process(_process)
 
                 session.merge(_sysprocess)
-                session.add_all([_cpu])
+                session.add_all([_cpu, _memory, _disk])
                 session.commit()
