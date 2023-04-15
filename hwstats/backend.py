@@ -72,3 +72,18 @@ def query_cpu_percent_with_time(pid_hash: str, session: Session) -> list[tuple]:
         session.query(CPU.measurementTime, CPU.cpuPercent).filter(CPU.pidHash == pid_hash).all()
     )
     return result
+
+
+def query_memory_percent_with_time(pid_hash: str, session: Session) -> list[tuple]:
+    """
+    Query the DB session to get a list of tuples containing the memory percent and measurement time
+    :param pid_hash: pidHash of the process
+    :param session: SQLAlchemy session
+    :return: list of tuples containing memory percent and measurement time
+    """
+    result = (
+        session.query(Memory.measurementTime, Memory.memoryPercent)
+        .filter(Memory.pidHash == pid_hash)
+        .all()
+    )
+    return result
