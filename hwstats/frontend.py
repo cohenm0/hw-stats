@@ -5,6 +5,7 @@ import sys
 from flask import Flask, render_template
 from jinja2 import Environment, PackageLoader
 from plotly import graph_objects as go
+from plotly.graph_objects import Figure
 from sqlalchemy.orm import Session
 
 from hwstats import DB_PATH
@@ -12,6 +13,7 @@ from hwstats.backend import (
     get_db_connection,
     index_table_query,
     query_cpu_percent_with_time,
+    query_memory_percent_with_time,
 )
 from hwstats.models import Base
 
@@ -60,16 +62,31 @@ def process_plot(pid_hash: str) -> str:
     """Retrieve the process plot page"""
     engine = get_db_connection(DB_PATH)
     session = Session(engine)
-    cpu_data = query_cpu_percent_with_time(pid_hash, session)
 
-    # Create a list of timestamps and CPU percentages
-    timestamps = [row[0] for row in cpu_data]
-    cpu_percentages = [row[1] for row in cpu_data]
+    cpu_fig = get_time_plot_fig(pid_hash, session, query_cpu_percent_with_time)
+    mem_fig = get_time_plot_fig(pid_hash, session, query_memory_percent_with_time)
+    return render_template(
+        "plot.html",
+        cpu_plot=cpu_fig.to_html(full_html=False),
+        mem_plot=mem_fig.to_html(full_html=False),
+    )
+
+
+def get_time_plot_fig(pid_hash: str, session: Session, query: callable) -> Figure:
+    """
+    Return the CPU plot as a plotly figure
+    :param pid_hash: pidHash of the process
+    :param session: SQLAlchemy session
+    :param query: function to query a list of tuples containing the timestamp and data
+    """
+    query_result = query(pid_hash, session)
+
+    # Create a list of timestamps and data
+    timestamps = [row.timestamp for row in query_result]
+    data = [row.data for row in query_result]
 
     # Create a plot using plotly
     fig = go.Figure()
-    fig.add_trace(go.Scatter(x=timestamps, y=cpu_percentages, mode="lines"))
+    fig.add_trace(go.Scatter(x=timestamps, y=data, mode="lines"))
 
-    # Render the template with the plot
-    return render_template("plot.html", plot=fig.to_html(full_html=False))
-    # return render_template("process_plot.html", pid_hash=pid_hash)
+    return fig
