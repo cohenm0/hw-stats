@@ -35,3 +35,6 @@ packages = ["hwstats"]
 
 [tool.black]
 line-length = 100
+
+[tool.isort]
+profile = "black"

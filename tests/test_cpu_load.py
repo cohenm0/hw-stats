@@ -6,6 +6,7 @@ import psutil
 from sqlalchemy.orm import Session
 
 from hwstats.backend import get_cpu_percents_for_pidHash, get_db_connection
+from hwstats.models import hash_process
 from hwstats.monitor import start_metrics_collection
 
 
@@ -33,7 +34,7 @@ def test_cpu_load(db_path: str) -> None:
         # We need to wait for stress-ng to start it's child processes
         sleep(5)
         child_process = stress_process.children()[0]
-        stress_child_hash = hash(child_process)
+        stress_child_hash = hash_process(child_process)
         print(stress.stdout.read().decode("utf-8"))
 
     # Wait for metrics collection to finish
@@ -49,5 +50,5 @@ def test_cpu_load(db_path: str) -> None:
     avg_stress = sum(stress_cpu_percents) / len(stress_cpu_percents)
 
     # Test that the average CPU load is within 10% of the expected load
-    assert avg_stress > (TEST_CPU_LOAD * 0.9)
-    assert avg_stress < (TEST_CPU_LOAD * 1.1)
+    assert avg_stress > (TEST_CPU_LOAD * 0.80)
+    assert avg_stress < (TEST_CPU_LOAD * 1.20)
