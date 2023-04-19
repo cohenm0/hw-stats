@@ -1,6 +1,21 @@
-{% extends 'base.html' %}
+<!DOCTYPE html>
+<html lang="en">
 
-{% block content %}
-<h1>{% block title %} Process Plot {% endblock %}</h1>
-{{ plot|safe }}
-{% endblock %}
+<head>
+    <meta charset="UTF-8">
+    <title>Process Plot</title>
+</head>
+
+<body>
+    <h1>Process Plot</h1>
+    <h2>CPU usage over time</h2>
+    <div>
+        {{ cpu_plot|safe }}
+    </div>
+    <h2>Memory usage over time</h2>
+    <div>
+        {{ mem_plot|safe }}
+    </div>
+</body>
+
+</html>
