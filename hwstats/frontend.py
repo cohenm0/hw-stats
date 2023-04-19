@@ -13,6 +13,7 @@ from hwstats.backend import (
     get_db_connection,
     index_table_query,
     query_cpu_percent_with_time,
+    query_Disk_percent_with_time,
     query_memory_percent_with_time,
 )
 from hwstats.models import Base
@@ -65,10 +66,12 @@ def process_plot(pid_hash: str) -> str:
 
     cpu_fig = get_time_plot_fig(pid_hash, session, query_cpu_percent_with_time)
     mem_fig = get_time_plot_fig(pid_hash, session, query_memory_percent_with_time)
+    disk_fig = get_time_plot_fig(pid_hash, session, query_Disk_percent_with_time)
     return render_template(
         "plot.html",
         cpu_plot=cpu_fig.to_html(full_html=False),
         mem_plot=mem_fig.to_html(full_html=False),
+        disk_fig=disk_fig.to_html(full_html=False),
     )
 
 
