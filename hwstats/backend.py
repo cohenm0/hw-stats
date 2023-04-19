@@ -6,7 +6,7 @@ from sqlalchemy.engine.base import Engine
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 
-from hwstats.models import CPU, Memory, SysProcess
+from hwstats.models import CPU, Disk, Memory, SysProcess
 
 logger = logging.getLogger(__name__)
 
@@ -87,6 +87,19 @@ def query_memory_percent_with_time(pid_hash: str, session: Session) -> list[tupl
     result = (
         session.query(Memory.measurementTime.label("timestamp"), Memory.memoryPercent.label("data"))
         .filter(Memory.pidHash == pid_hash)
+        .all()
+    )
+    return result
+
+
+def query_Disk_percent_with_time(pid_hash: str, session: Session) -> list[tuple[datetime, float]]:
+    result = (
+        session.query(
+            Disk.measurementTime.label("timestamp"),
+            Disk.diskRead.label("data"),
+            Disk.diskWrite.label("data"),
+        )
+        .filter(Disk.pidHash == pid_hash)
         .all()
     )
     return result
