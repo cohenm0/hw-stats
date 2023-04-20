@@ -6,6 +6,7 @@ from flask import Flask, render_template
 from jinja2 import Environment, PackageLoader
 from plotly import graph_objects as go
 from plotly.graph_objects import Figure
+from plotly.subplots import make_subplots
 from sqlalchemy.orm import Session
 
 from hwstats import DB_PATH
@@ -13,7 +14,7 @@ from hwstats.backend import (
     get_db_connection,
     index_table_query,
     query_cpu_percent_with_time,
-    query_Disk_percent_with_time,
+    query_Disk_read_write_with_time,
     query_memory_percent_with_time,
 )
 from hwstats.models import Base
@@ -66,7 +67,7 @@ def process_plot(pid_hash: str) -> str:
 
     cpu_fig = get_time_plot_fig(pid_hash, session, query_cpu_percent_with_time)
     mem_fig = get_time_plot_fig(pid_hash, session, query_memory_percent_with_time)
-    disk_fig = get_time_plot_fig(pid_hash, session, query_Disk_percent_with_time)
+    disk_fig = get_read_write_plot_fig(pid_hash, session, query_Disk_read_write_with_time)
     return render_template(
         "plot.html",
         cpu_plot=cpu_fig.to_html(full_html=False),
@@ -91,5 +92,25 @@ def get_time_plot_fig(pid_hash: str, session: Session, query: callable) -> Figur
     # Create a plot using plotly
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=timestamps, y=data, mode="lines"))
+
+    return fig
+
+
+def get_read_write_plot_fig(pid_hash: str, session: Session, query: callable) -> Figure:
+    query_result = query(pid_hash, session)
+
+    timestamp = [row.timestamp for row in query_result]
+    readData = [row.readData for row in query_result]
+    writeData = [row.writeData for row in query_result]
+
+    fig = make_subplots(specs=[[{"secondary_y": True}]])
+    fig.add_trace(
+        go.Scatter(x=timestamp, y=readData, mode="lines", name="readData"),
+        secondary_y=False,
+    )
+    fig.add_trace(
+        go.Scatter(x=timestamp, y=writeData, mode="lines", name="writedData"),
+        secondary_y=True,
+    )
 
     return fig
