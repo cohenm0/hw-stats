@@ -92,12 +92,14 @@ def query_memory_percent_with_time(pid_hash: str, session: Session) -> list[tupl
     return result
 
 
-def query_Disk_percent_with_time(pid_hash: str, session: Session) -> list[tuple[datetime, float]]:
+def query_Disk_read_write_with_time(
+    pid_hash: str, session: Session
+) -> list[tuple[datetime, float, float]]:
     result = (
         session.query(
             Disk.measurementTime.label("timestamp"),
-            Disk.diskRead.label("data"),
-            Disk.diskWrite.label("data"),
+            Disk.diskRead.label("readData"),
+            Disk.diskWrite.label("writeData"),
         )
         .filter(Disk.pidHash == pid_hash)
         .all()
