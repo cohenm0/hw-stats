@@ -72,7 +72,7 @@ def process_plot(pid_hash: str) -> str:
         "plot.html",
         cpu_plot=cpu_fig.to_html(full_html=False),
         mem_plot=mem_fig.to_html(full_html=False),
-        disk_fig=disk_fig.to_html(full_html=False),
+        disk_plot=disk_fig.to_html(full_html=False),
     )
 
 
