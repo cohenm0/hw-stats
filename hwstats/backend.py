@@ -62,6 +62,7 @@ def index_table_query(session: Session) -> list[tuple]:
         )
         .outerjoin(CPU, SysProcess.pidHash == CPU.pidHash)
         .outerjoin(Memory, SysProcess.pidHash == Memory.pidHash)
+        .outerjoin(Disk, SysProcess.pidHash == Disk.pidHash)
         .group_by(
             SysProcess.name,
             SysProcess.pid,
