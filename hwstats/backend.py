@@ -52,6 +52,7 @@ def index_table_query(session: Session) -> list[tuple]:
             SysProcess.pid,
             SysProcess.createTime,
             SysProcess.pidHash,
+            CPU.threads,
             func.avg(CPU.cpuPercent).label("avg_cpu_percent"),
             func.avg(Memory.memoryPercent).label("avg_memory_percent"),
             func.avg(Disk.diskRead).label("avg_disk_read"),
@@ -65,6 +66,7 @@ def index_table_query(session: Session) -> list[tuple]:
             SysProcess.createTime,
             SysProcess.pidHash,
             SysProcess.disk,
+            CPU.threads,
         )
     )
     return statement.all()
