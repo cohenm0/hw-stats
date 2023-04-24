@@ -54,10 +54,18 @@ def index_table_query(session: Session) -> list[tuple]:
             SysProcess.pidHash,
             func.avg(CPU.cpuPercent).label("avg_cpu_percent"),
             func.avg(Memory.memoryPercent).label("avg_memory_percent"),
+            func.avg(Disk.diskRead).label("avg_disk_read"),
+            func.avg(Disk.diskWrite).label("avg_disk_write"),
         )
         .outerjoin(CPU, SysProcess.pidHash == CPU.pidHash)
         .outerjoin(Memory, SysProcess.pidHash == Memory.pidHash)
-        .group_by(SysProcess.name, SysProcess.pid, SysProcess.createTime, SysProcess.pidHash)
+        .group_by(
+            SysProcess.name,
+            SysProcess.pid,
+            SysProcess.createTime,
+            SysProcess.pidHash,
+            SysProcess.disk,
+        )
     )
     return statement.all()
 
