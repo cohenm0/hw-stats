@@ -18,8 +18,9 @@
         <th> Average CPU percent</th>
         <th> Average Memory percent</th>
         <th> Process creation Time</th>
-        <th>Average Disk_Read</th>
-        <th>Average Disk_Write</th>
+        <th> Average Disk_Read</th>
+        <th> Average Disk_Write</th>
+        <th> Thread Count</th>
     </tr>
     {% for process in process_list %}
     <tr>
@@ -30,6 +31,7 @@
         <td>{{ process.createTime.strftime('%Y-%m-%d %H:%M:%S') }}</td>
         <td>{{ process.avg_disk_read|round(2)}}</td>
         <td>{{ process.avg_disk_write|round(2)}}</td>
+        <td>{{ process.threads}}</td>
     </tr>
     {% endfor %}
 </table>
