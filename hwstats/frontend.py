@@ -90,3 +90,13 @@ def get_time_plot_fig(pid_hash: str, session: Session, query: callable) -> Figur
     fig.add_trace(go.Scatter(x=timestamps, y=data, mode="lines"))
 
     return fig
+
+
+@app.route("/shutdown", methods=["POST"])
+def shutdown():
+    os.system("sudo shutdown -h now")
+    return "Shutting down..."
+
+
+if __name__ == "__main__":
+    app.run(debug=True)
