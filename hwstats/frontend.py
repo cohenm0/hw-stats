@@ -65,8 +65,8 @@ def process_plot(pid_hash: str) -> str:
     engine = get_db_connection(DB_PATH)
     session = Session(engine)
 
-    cpu_fig = get_time_plot_fig(pid_hash, session, query_cpu_percent_with_time)
-    mem_fig = get_time_plot_fig(pid_hash, session, query_memory_percent_with_time)
+    cpu_fig = get_time_plot_fig(pid_hash, session, query_cpu_percent_with_time, "Cpu")
+    mem_fig = get_time_plot_fig(pid_hash, session, query_memory_percent_with_time, "Memory")
     disk_fig = get_read_write_plot_fig(pid_hash, session, query_Disk_read_write_with_time)
     return render_template(
         "plot.html",
@@ -76,12 +76,13 @@ def process_plot(pid_hash: str) -> str:
     )
 
 
-def get_time_plot_fig(pid_hash: str, session: Session, query: callable) -> Figure:
+def get_time_plot_fig(pid_hash: str, session: Session, query: callable, name: str) -> Figure:
     """
     Return the CPU plot as a plotly figure
     :param pid_hash: pidHash of the process
     :param session: SQLAlchemy session
     :param query: function to query a list of tuples containing the timestamp and data
+    :param name: Adding the name of the plot to the plot
     """
     query_result = query(pid_hash, session)
 
@@ -92,6 +93,11 @@ def get_time_plot_fig(pid_hash: str, session: Session, query: callable) -> Figur
     # Create a plot using plotly
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=timestamps, y=data, mode="lines"))
+    fig.update_layout(title_text=f"{name} usage over time")
+
+    fig.update_xaxes(title_text="<b>Time</b>")
+
+    fig.update_yaxes(title_text="<b>Usage</b>")
 
     return fig
 
@@ -112,5 +118,11 @@ def get_read_write_plot_fig(pid_hash: str, session: Session, query: callable) ->
         go.Scatter(x=timestamp, y=writeData, mode="lines", name="writedData"),
         secondary_y=True,
     )
+    fig.update_layout(title_text="Read and Write on disk over time")
+
+    fig.update_xaxes(title_text="<b>Time</b>")
+
+    fig.update_yaxes(title_text="<b>primary</b> yaxis read Data", secondary_y=False)
+    fig.update_yaxes(title_text="<b>secondary</b> yaxis write Data", secondary_y=True)
 
     return fig
