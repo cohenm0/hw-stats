@@ -4,6 +4,7 @@ from datetime import datetime
 from sqlalchemy import create_engine
 from sqlalchemy.engine.base import Engine
 from sqlalchemy.orm import Session
+from sqlalchemy.pool import NullPool
 from sqlalchemy.sql import func
 
 func: callable
@@ -22,7 +23,10 @@ def get_db_connection(database_path: str) -> Engine:
     :return: SQLAlchemy engine
     """
     logger.info(f"Connecting to database at {database_path}")
-    return create_engine(f"sqlite:///{database_path}")
+    # Using poolclass=NullPool reduces concurrency hazards with multiprocessing by forcing
+    # sessions to be single use.
+    # See https://docs.sqlalchemy.org/en/13/core/pooling.html#using-connection-pools-with-multiprocessing
+    return create_engine(f"sqlite:///{database_path}", poolclass=NullPool)
 
 
 def get_cpu_percents_for_pidHash(pid_hash: str, session: Session) -> list[float]:
