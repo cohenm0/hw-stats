@@ -3,24 +3,18 @@
 {% block content %}
 <h1>{% block title %} Welcome to Hardware Stats {% endblock %}</h1>
 <h1>Processes table </h1>
-<style>
-    table,
-    th,
-    td {
-        border: 1px solid black;
-    }
-</style>
+<link rel="stylesheet" type="text/css" href="/static/css/style.css">
 
-<table style="width: 100%;">
+<table>
     <tr>
         <th> Process name</th>
         <th> Process id</th>
         <th> Average CPU percent</th>
         <th> Average Memory percent</th>
-        <th> Process creation Time</th>
-        <th> Average Disk_Read</th>
-        <th> Average Disk_Write</th>
+        <th> Max Disk_Read</th>
+        <th> Max Disk_Write</th>
         <th> Thread Count</th>
+        <th> Process creation Time</th>
     </tr>
     {% for process in process_list %}
     <tr>
@@ -28,10 +22,10 @@
         <td>{{ process.pid }}</td>
         <td>{{ process.avg_cpu_percent|round(2) }}</td>
         <td>{{ process.avg_memory_percent|round(2) }}</td>
-        <td>{{ process.createTime.strftime('%Y-%m-%d %H:%M:%S') }}</td>
-        <td>{{ process.avg_disk_read|round(2)}}</td>
-        <td>{{ process.avg_disk_write|round(2)}}</td>
+        <td>{{ process.max_disk_read}}</td>
+        <td>{{ process.max_disk_write}}</td>
         <td>{{ process.threads}}</td>
+        <td>{{ process.createTime.strftime('%Y-%m-%d %H:%M:%S') }}</td>
     </tr>
     {% endfor %}
 </table>
