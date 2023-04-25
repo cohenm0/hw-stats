@@ -9,7 +9,7 @@ def configure_logging() -> None:
 
     # Define a file handler that logs messages to a file
     file_handler = logging.FileHandler("hwstats.log", mode="w")
-    file_handler.setLevel(logging.INFO)
+    file_handler.setLevel(logging.DEBUG)
 
     # Configure the root logger
     logging.basicConfig(
@@ -20,3 +20,7 @@ def configure_logging() -> None:
         datefmt="%Y-%m-%d %H:%M:%S",
         handlers=[console_handler, file_handler],
     )
+
+    # We set the SQLalchemy logger to WARNING because it's very verbose otherwise
+    # SQLAlchemy logging: https://docs.sqlalchemy.org/en/20/core/engines.html#configuring-logging
+    logging.getLogger("sqlalchemy").setLevel(logging.WARNING)
