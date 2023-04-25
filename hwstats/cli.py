@@ -1,14 +1,10 @@
 import logging
 from multiprocessing import Process
 
-from hwstats import DB_PATH
+from hwstats import COLLECTION_INTERVAL_SECONDS, DB_PATH, TIMEOUT_SECONDS
 from hwstats.frontend import start_app
 from hwstats.log_config import configure_logging
 from hwstats.monitor import start_metrics_collection
-
-COLLECTION_INTERVAL_SECONDS = 0.1
-TIMEOUT_SECONDS = 0
-
 
 if __name__ == "__main__":
     configure_logging()
