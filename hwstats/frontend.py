@@ -56,7 +56,8 @@ env.filters["round"] = round_filter
 @app.route("/")
 def index() -> str:
     """Retrieve the index page"""
-    process_list = index_table_query(SESSION)
+    with Session(ENGINE) as session:
+        process_list = index_table_query(session)
 
     return render_template("index.html", process_list=process_list)
 
@@ -64,9 +65,10 @@ def index() -> str:
 @app.route("/process/<string:pid_hash>/plot")
 def process_plot(pid_hash: str) -> str:
     """Retrieve the process plot page"""
-    cpu_fig = get_time_plot_fig(pid_hash, SESSION, query_cpu_percent_with_time, "Cpu")
-    mem_fig = get_time_plot_fig(pid_hash, SESSION, query_memory_percent_with_time, "Memory")
-    disk_fig = get_read_write_plot_fig(pid_hash, SESSION, query_Disk_read_write_with_time)
+    with Session(ENGINE) as session:
+        cpu_fig = get_time_plot_fig(pid_hash, session, query_cpu_percent_with_time, "Cpu")
+        mem_fig = get_time_plot_fig(pid_hash, session, query_memory_percent_with_time, "Memory")
+        disk_fig = get_read_write_plot_fig(pid_hash, session, query_Disk_read_write_with_time)
 
     return render_template(
         "plot.html",
