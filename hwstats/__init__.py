@@ -8,7 +8,7 @@ How often to collect metrics and attempt to write them to the database. This val
 very impactful on application perforance and also impacts the risk of concurrency errors.
 If the value is too large then metric data loses resoltion, if the value is too small then
 the DB write queue fills up which slows queries and increases the chance of concurrency errors.
-We've found that a value of 0.5 seconds generally works well.
+We've found that a value of 0.05 seconds generally works well.
 """
 COLLECTION_INTERVAL_SECONDS = 0.05
 
