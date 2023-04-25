@@ -1,7 +1,7 @@
 import logging
 from queue import Queue
 from sqlite3 import OperationalError
-from threading import Thread
+from threading import Event, Thread
 from time import sleep, time
 
 import psutil
@@ -26,9 +26,14 @@ def start_metrics_collection(
     engine = get_db_connection(db_path)
     models.Base.metadata.create_all(engine)
 
+    # We use a queue so that DB writes can be asynchronus to metric collection
     data_queue = Queue()
+    shut_down = Event()
     db_writer_thread = Thread(
-        target=write_to_db, args=(engine, data_queue), kwargs={"interval": collection_interval}
+        target=write_to_db,
+        args=(engine, data_queue, shut_down),
+        kwargs={"interval": collection_interval},
+        name="db_writer_thread",
     )
     db_writer_thread.start()
 
@@ -37,36 +42,37 @@ def start_metrics_collection(
     while True:
         for _process in psutil.process_iter():
             try:
-                with _process.oneshot():
-                    _sysprocess = models.build_sysprocess_from_process(_process)
-                    _cpu = models.build_cpu_from_process(_process)
-                    _memory = models.build_memory_from_process(_process)
-                    _disk = models.build_disk_from_process(_process)
-
-                    data_queue.put((_sysprocess, _cpu, _memory, _disk))
+                data = get_process_data(_process)
+                data_queue.put(data)
 
             # If the process dies before the iterator gets to it then skip it
             except (psutil.NoSuchProcess, FileNotFoundError):
-                pass
+                logger.debug(f"Skipping dead process {_process}")
 
         sleep(collection_interval)
         if time() - start_time > timeout and timeout != 0:
             logger.warning("Stopping collection")
-            data_queue.put(None)
-            db_writer_thread.join()
+            shut_down.set()
+            db_writer_thread.join(timeout=collection_interval)
             return
 
 
-def write_to_db(engine: Engine, data_queue: Queue, interval: float = 0.1) -> None:
+def get_process_data(process: psutil.Process) -> tuple:
+    """Get data for a process"""
+    with process.oneshot():
+        _sysprocess = models.build_sysprocess_from_process(process)
+        _cpu = models.build_cpu_from_process(process)
+        _memory = models.build_memory_from_process(process)
+        _disk = models.build_disk_from_process(process)
+
+    return (_sysprocess, _cpu, _memory, _disk)
+
+
+def write_to_db(engine: Engine, data_queue: Queue, shutdown: Event, interval: float = 0.1) -> None:
     """Write data from the queue to the database"""
     with Session(engine) as session:
-        while True:
-            data = data_queue.get()
-            if data is None:
-                session.commit()
-                return
-
-            _sysprocess, _cpu, _memory, _disk = data
+        while not shutdown.is_set():
+            _sysprocess, _cpu, _memory, _disk = data_queue.get()
             try:
                 session.merge(_sysprocess)
                 session.add_all([_cpu, _memory, _disk])
@@ -78,3 +84,7 @@ def write_to_db(engine: Engine, data_queue: Queue, interval: float = 0.1) -> Non
             # Without a sleep here the chance of DB lock is much higher and
             # query performance is noticably slower
             sleep(interval)
+
+        session.commit()
+        logger.debug("DB writer thread shutting down")
+        return
