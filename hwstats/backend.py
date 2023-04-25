@@ -6,6 +6,8 @@ from sqlalchemy.engine.base import Engine
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 
+func: callable
+
 from hwstats.models import CPU, Disk, Memory, SysProcess
 
 logger = logging.getLogger(__name__)
@@ -52,12 +54,23 @@ def index_table_query(session: Session) -> list[tuple]:
             SysProcess.pid,
             SysProcess.createTime,
             SysProcess.pidHash,
+            CPU.threads,
             func.avg(CPU.cpuPercent).label("avg_cpu_percent"),
             func.avg(Memory.memoryPercent).label("avg_memory_percent"),
+            func.max(Disk.diskRead).label("max_disk_read"),
+            func.max(Disk.diskWrite).label("max_disk_write"),
         )
         .outerjoin(CPU, SysProcess.pidHash == CPU.pidHash)
         .outerjoin(Memory, SysProcess.pidHash == Memory.pidHash)
-        .group_by(SysProcess.name, SysProcess.pid, SysProcess.createTime, SysProcess.pidHash)
+        .outerjoin(Disk, SysProcess.pidHash == Disk.pidHash)
+        .group_by(
+            SysProcess.name,
+            SysProcess.pid,
+            SysProcess.createTime,
+            SysProcess.pidHash,
+            SysProcess.disk,
+            CPU.threads,
+        )
     )
     return statement.all()
 

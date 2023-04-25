@@ -65,7 +65,7 @@ def process_plot(pid_hash: str) -> str:
     engine = get_db_connection(DB_PATH)
     session = Session(engine)
 
-    cpu_fig = get_time_plot_fig(pid_hash, session, query_cpu_percent_with_time, "Cpu")
+    cpu_fig = get_time_plot_fig(pid_hash, session, query_cpu_percent_with_time, "CPU")
     mem_fig = get_time_plot_fig(pid_hash, session, query_memory_percent_with_time, "Memory")
     disk_fig = get_read_write_plot_fig(pid_hash, session, query_Disk_read_write_with_time)
     return render_template(
