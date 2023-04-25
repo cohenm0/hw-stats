@@ -25,7 +25,6 @@ logger = logging.getLogger(__name__)
 # We do this once, when the app starts, so that we don't have to do it for every request
 ENGINE = get_db_connection(DB_PATH)
 Base.metadata.create_all(ENGINE)
-SESSION = Session(ENGINE)
 
 # When running from a pyinstaller executable, the templates and static folders are not found
 # Use sys._MEIPASS, to find the  PyInstaller temporary budle folder and pass it to Flask
