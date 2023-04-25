@@ -36,12 +36,7 @@ def get_cpu_percents_for_pidHash(pid_hash: str, session: Session) -> list[float]
     :param session: SQLAlchemy session
     :return: list of records containing CPU percent
     """
-    result = (
-        session.query(CPU.cpuPercent)
-        .filter(CPU.pidHash == SysProcess.pidHash)
-        .filter(SysProcess.pidHash == pid_hash)
-        .all()
-    )
+    result = session.query(CPU.cpuPercent).filter(CPU.pidHash == pid_hash).all()
     cpu_percents = [row[0] for row in result]
     return cpu_percents
 
