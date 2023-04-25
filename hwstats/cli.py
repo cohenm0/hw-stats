@@ -19,8 +19,9 @@ if __name__ == "__main__":
         target=start_metrics_collection,
         args=[COLLECTION_INTERVAL_SECONDS],
         kwargs={"timeout": TIMEOUT_SECONDS, "db_path": DB_PATH},
+        name="hwstats_metrics_collection",
     )
-    app_process = Process(target=start_app)
+    app_process = Process(target=start_app, name="hwstats_web_app")
 
     metrics_process.start()
     app_process.start()
