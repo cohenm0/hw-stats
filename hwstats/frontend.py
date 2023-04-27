@@ -21,6 +21,11 @@ from hwstats.models import Base
 
 logger = logging.getLogger(__name__)
 
+# Build the engine, create the tables if they don't exist, and create a session
+# We do this once, when the app starts, so that we don't have to do it for every request
+ENGINE = get_db_connection(DB_PATH)
+Base.metadata.create_all(ENGINE)
+
 # When running from a pyinstaller executable, the templates and static folders are not found
 # Use sys._MEIPASS, to find the  PyInstaller temporary budle folder and pass it to Flask
 # Reference: https://github.com/ciscomonkey/flask-pyinstaller
@@ -50,11 +55,8 @@ env.filters["round"] = round_filter
 @app.route("/")
 def index() -> str:
     """Retrieve the index page"""
-    engine = get_db_connection(DB_PATH)
-    Base.metadata.create_all(engine)
-    session = Session(engine)
-
-    process_list = index_table_query(session)
+    with Session(ENGINE) as session:
+        process_list = index_table_query(session)
 
     return render_template("index.html", process_list=process_list)
 
@@ -62,12 +64,11 @@ def index() -> str:
 @app.route("/process/<string:pid_hash>/plot")
 def process_plot(pid_hash: str) -> str:
     """Retrieve the process plot page"""
-    engine = get_db_connection(DB_PATH)
-    session = Session(engine)
+    with Session(ENGINE) as session:
+        cpu_fig = get_time_plot_fig(pid_hash, session, query_cpu_percent_with_time, "Cpu")
+        mem_fig = get_time_plot_fig(pid_hash, session, query_memory_percent_with_time, "Memory")
+        disk_fig = get_read_write_plot_fig(pid_hash, session, query_Disk_read_write_with_time)
 
-    cpu_fig = get_time_plot_fig(pid_hash, session, query_cpu_percent_with_time, "CPU")
-    mem_fig = get_time_plot_fig(pid_hash, session, query_memory_percent_with_time, "Memory")
-    disk_fig = get_read_write_plot_fig(pid_hash, session, query_Disk_read_write_with_time)
     return render_template(
         "plot.html",
         cpu_plot=cpu_fig.to_html(full_html=False),
