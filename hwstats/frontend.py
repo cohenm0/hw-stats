@@ -127,3 +127,11 @@ def get_read_write_plot_fig(pid_hash: str, session: Session, query: callable) ->
     fig.update_yaxes(title_text="<b>secondary</b> yaxis write Data", secondary_y=True)
 
     return fig
+
+
+@app.route("/shutdown", methods=["POST"])
+def shutdown():
+    engine = get_db_connection(DB_PATH)
+    logger.info("Closing database connection...")
+    engine.dispose()  # closes the connection
+    return "Database connection closed"

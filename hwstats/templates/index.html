@@ -1,34 +1,20 @@
 {% extends 'base.html' %}
 
-{% block head %}
-<link rel=\"stylesheet" type="text/css" href="/static/css/style.css">
-<style>
-    table,
-    th,
-    td {
-        border: 1px solid black;
-    }
-</style>
-{% endblock %}
-
 {% block content %}
 <h1>{% block title %} Welcome to Hardware Stats {% endblock %}</h1>
 <h1>Processes table </h1>
-
-<form method="post" action="/shutdown">
-    <button type="submit">Shutdown</button>
-</form>
+<link rel="stylesheet" type="text/css" href="/static/css/style.css">
 
 <table>
     <tr>
-        <th>Process name</th>
-        <th>Process id</th>
-        <th>Average CPU percent</th>
-        <th>Average Memory percent</th>
-        <th>Max Disk_Read</th>
-        <th>Max Disk_Write</th>
-        <th>Thread Count</th>
-        <th>Process creation Time</th>
+        <th> Process name</th>
+        <th> Process id</th>
+        <th> Average CPU percent</th>
+        <th> Average Memory percent</th>
+        <th> Max Disk_Read</th>
+        <th> Max Disk_Write</th>
+        <th> Thread Count</th>
+        <th> Process creation Time</th>
     </tr>
     {% for process in process_list %}
     <tr>
@@ -43,5 +29,4 @@
     </tr>
     {% endfor %}
 </table>
-
 {% endblock %}
