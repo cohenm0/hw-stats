@@ -32,7 +32,7 @@ class SysProcess(Base):
     )
 
     def __repr__(self) -> str:
-        return f"SysProcess(pidHash={self.pidHash}, name={self.name})"
+        return f"SysProcess(pidHash={self.pidHash}, name={self.name}, pid={self.pid}, createTime={self.createTime}, cpu={self.cpu}, memory={self.memory},disk={self.disk})"
 
 
 class CPU(Base):
@@ -52,7 +52,7 @@ class CPU(Base):
     process: Mapped["SysProcess"] = relationship(back_populates="cpu")
 
     def __repr__(self) -> str:
-        return f"CPU(id={self.id}, pidHash={self.pidHash})"
+        return f"CPU(id={self.id}, pidHash={self.pidHash}, cpuPercent={self.cpuPercent}, userTime={self.userTime}, systemTime={self.systemTime}, threads={self.threads}, measuremetTime={self.measurementTime}, process={self.process})"
 
 
 class Memory(Base):
@@ -69,7 +69,7 @@ class Memory(Base):
     process: Mapped["SysProcess"] = relationship(back_populates="memory")
 
     def __repr__(self) -> str:
-        return f"Memory(id={self.id}, pidHash={self.pidHash})"
+        return f"Memory(id={self.id}, pidHash={self.pidHash}, memoryPercent={self.memoryPercent}, memoryRSS={self.memoryRSS}, measeurmentTime={self.measurementTime}, process={self.process})"
 
 
 class Disk(Base):
@@ -87,7 +87,7 @@ class Disk(Base):
     process: Mapped["SysProcess"] = relationship(back_populates="disk")
 
     def __repr__(self) -> str:
-        return f"Disk(id={self.id}, pidHash={self.pidHash})"
+        return f"Disk(id={self.id}, pidHash={self.pidHash}, diskRead={self.diskRead}, diskWrite={self.diskWrite}, measurementTime={self.measurementTime}, process={self.process})"
 
 
 def hash_process(process: Process) -> str:

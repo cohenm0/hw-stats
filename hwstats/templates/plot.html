@@ -7,14 +7,17 @@
 </head>
 
 <body>
-    <h1>Process Plot</h1>
-    <h2>CPU usage over time</h2>
+
+
     <div>
         {{ cpu_plot|safe }}
     </div>
-    <h2>Memory usage over time</h2>
+
     <div>
         {{ mem_plot|safe }}
+    </div>
+    <div>
+        {{ disk_plot|safe }}
     </div>
 </body>
 

@@ -4,9 +4,12 @@ from datetime import datetime
 from sqlalchemy import create_engine
 from sqlalchemy.engine.base import Engine
 from sqlalchemy.orm import Session
+from sqlalchemy.pool import NullPool
 from sqlalchemy.sql import func
 
-from hwstats.models import CPU, Memory, SysProcess
+func: callable
+
+from hwstats.models import CPU, Disk, Memory, SysProcess
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +23,10 @@ def get_db_connection(database_path: str) -> Engine:
     :return: SQLAlchemy engine
     """
     logger.info(f"Connecting to database at {database_path}")
-    return create_engine(f"sqlite:///{database_path}")
+    # Using poolclass=NullPool reduces concurrency hazards with multiprocessing by forcing
+    # sessions to be single use.
+    # See https://docs.sqlalchemy.org/en/13/core/pooling.html#using-connection-pools-with-multiprocessing
+    return create_engine(f"sqlite:///{database_path}", poolclass=NullPool)
 
 
 def get_cpu_percents_for_pidHash(pid_hash: str, session: Session) -> list[float]:
@@ -30,12 +36,7 @@ def get_cpu_percents_for_pidHash(pid_hash: str, session: Session) -> list[float]
     :param session: SQLAlchemy session
     :return: list of records containing CPU percent
     """
-    result = (
-        session.query(CPU.cpuPercent)
-        .filter(CPU.pidHash == SysProcess.pidHash)
-        .filter(SysProcess.pidHash == pid_hash)
-        .all()
-    )
+    result = session.query(CPU.cpuPercent).filter(CPU.pidHash == pid_hash).all()
     cpu_percents = [row[0] for row in result]
     return cpu_percents
 
@@ -52,12 +53,23 @@ def index_table_query(session: Session) -> list[tuple]:
             SysProcess.pid,
             SysProcess.createTime,
             SysProcess.pidHash,
+            CPU.threads,
             func.avg(CPU.cpuPercent).label("avg_cpu_percent"),
             func.avg(Memory.memoryPercent).label("avg_memory_percent"),
+            func.max(Disk.diskRead).label("max_disk_read"),
+            func.max(Disk.diskWrite).label("max_disk_write"),
         )
         .outerjoin(CPU, SysProcess.pidHash == CPU.pidHash)
         .outerjoin(Memory, SysProcess.pidHash == Memory.pidHash)
-        .group_by(SysProcess.name, SysProcess.pid, SysProcess.createTime, SysProcess.pidHash)
+        .outerjoin(Disk, SysProcess.pidHash == Disk.pidHash)
+        .group_by(
+            SysProcess.name,
+            SysProcess.pid,
+            SysProcess.createTime,
+            SysProcess.pidHash,
+            SysProcess.disk,
+            CPU.threads,
+        )
     )
     return statement.all()
 
@@ -87,6 +99,21 @@ def query_memory_percent_with_time(pid_hash: str, session: Session) -> list[tupl
     result = (
         session.query(Memory.measurementTime.label("timestamp"), Memory.memoryPercent.label("data"))
         .filter(Memory.pidHash == pid_hash)
+        .all()
+    )
+    return result
+
+
+def query_Disk_read_write_with_time(
+    pid_hash: str, session: Session
+) -> list[tuple[datetime, float, float]]:
+    result = (
+        session.query(
+            Disk.measurementTime.label("timestamp"),
+            Disk.diskRead.label("readData"),
+            Disk.diskWrite.label("writeData"),
+        )
+        .filter(Disk.pidHash == pid_hash)
         .all()
     )
     return result
