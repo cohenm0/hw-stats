@@ -134,4 +134,4 @@ def shutdown():
     engine = get_db_connection(DB_PATH)
     logger.info("Closing database connection...")
     engine.dispose()  # closes the connection
-    return "Database connection closed"
+    return render_template("shutDown.html")
