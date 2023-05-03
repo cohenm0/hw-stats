@@ -1,6 +1,5 @@
 from datetime import datetime
 
-import psutil
 import xxhash
 from psutil import Process
 from sqlalchemy import ForeignKey, String
@@ -95,52 +94,52 @@ def hash_process(process: Process) -> str:
     return xxhash.xxh3_64(str(process).encode("utf-8")).hexdigest()
 
 
-def build_cpu_from_process(process: Process) -> CPU:
+def build_cpu_from_process(process: dict) -> CPU:
     """Build CPU record object from a process"""
     return CPU(
-        pidHash=hash_process(process),
-        cpuPercent=process.cpu_percent(),
-        systemTime=process.cpu_times().system,
-        userTime=process.cpu_times().user,
-        threads=process.num_threads(),
+        pidHash=process["pidHash"],
+        cpuPercent=process["cpu_percent"],
+        systemTime=process["cpu_times"].system,
+        userTime=process["cpu_times"].user,
+        threads=process["num_threads"],
         # idleTime=process.cpu_times().idle,
         measurementTime=datetime.now(),
     )
 
 
-def build_memory_from_process(process: Process) -> Memory:
+def build_memory_from_process(process: dict) -> Memory:
     """Build Memory record object from a process"""
     return Memory(
-        pidHash=hash_process(process),
-        memoryPercent=process.memory_percent(),
-        memoryRSS=process.memory_info().rss,
+        pidHash=process["pidHash"],
+        memoryPercent=process["memory_percent"],
+        memoryRSS=process["memory_info"].rss,
         measurementTime=datetime.now(),
     )
 
 
-def build_disk_from_process(process: Process) -> Disk:
+def build_disk_from_process(process: dict) -> Disk:
     """Build Disk record object from a process"""
     try:
-        _diskRead = process.io_counters().read_count
-    except (PermissionError, psutil.AccessDenied):
+        _diskRead = process["io_counters"].read_count
+    except (PermissionError, AttributeError, KeyError):
         _diskRead = 0
     try:
-        _diskWrite = process.io_counters().write_count
-    except (PermissionError, psutil.AccessDenied):
+        _diskWrite = process["io_counters"].write_count
+    except (PermissionError, AttributeError, KeyError):
         _diskWrite = 0
     return Disk(
-        pidHash=hash_process(process),
+        pidHash=process["pidHash"],
         diskRead=_diskRead,
         diskWrite=_diskWrite,
         measurementTime=datetime.now(),
     )
 
 
-def build_sysprocess_from_process(process: Process) -> SysProcess:
+def build_sysprocess_from_process(process: dict) -> SysProcess:
     """Build a SysProcess record object from a process"""
     return SysProcess(
-        pidHash=hash_process(process),
-        pid=process.pid,
-        name=process.name(),
-        createTime=datetime.fromtimestamp(process.create_time()),
+        pidHash=process["pidHash"],
+        pid=process["pid"],
+        name=process["name"],
+        createTime=datetime.fromtimestamp(process["create_time"]),
     )
