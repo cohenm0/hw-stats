@@ -64,10 +64,7 @@ def get_process_data(process: psutil.Process) -> tuple:
     # efficient than using the oneshot method directly, but for some reason calling the model build
     # methods seemed to exit the oneshot context manager and lead to bad data.
     process_dict = process.as_dict()
-
-    # Hash the process id, name, and create time to get a unique id for the process
-    id_str = f"{process_dict['pid']}, {process_dict['name']}, {process_dict['create_time']}"
-    process_dict["pidHash"] = xxhash.xxh64(id_str).hexdigest()
+    process_dict["pidHash"] = hash_process(process_dict)
 
     _sysprocess = models.build_sysprocess_from_process(process_dict)
     _cpu = models.build_cpu_from_process(process_dict)
@@ -97,3 +94,9 @@ def write_to_db(engine: Engine, data_queue: Queue, shutdown: Event, interval: fl
         session.commit()
         logger.debug("DB writer thread shutting down")
         return
+
+
+def hash_process(process_dict: dict) -> None:
+    """Hash the process id, name, and create time to get a unique id for the process"""
+    id_str = f"{process_dict['pid']}, {process_dict['name']}, {process_dict['create_time']}"
+    return xxhash.xxh64(id_str).hexdigest()
