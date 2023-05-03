@@ -9,8 +9,7 @@ from sqlalchemy.orm import Session
 
 from hwstats import COLLECTION_INTERVAL_SECONDS, models
 from hwstats.backend import get_cpu_percents_for_pidHash, get_db_connection
-from hwstats.models import hash_process
-from hwstats.monitor import start_metrics_collection
+from hwstats.monitor import hash_process, start_metrics_collection
 
 logger = logging.getLogger(__name__)
 
@@ -40,8 +39,9 @@ def test_cpu_load(db_path: str) -> None:
         # We need to wait for stress-ng to start it's child processes
         sleep(10)
         child_process = stress_process.children()[0]
+        child_process_dict = child_process.as_dict()
         print(stress_process.children())
-        stress_child_hash = hash_process(child_process)
+        stress_child_hash = hash_process(child_process_dict)
         print(f"Stress child hash is {stress_child_hash}")
         print(stress.stdout.read().decode("utf-8"))
         assert os.path.exists(db_path)
