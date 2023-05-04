@@ -1,6 +1,7 @@
 import logging
 import os
 import sys
+from multiprocessing import Queue
 
 from flask import Flask, render_template
 from jinja2 import Environment, PackageLoader
@@ -23,6 +24,8 @@ logger = logging.getLogger(__name__)
 
 # Build the engine, create the tables if they don't exist, and create a session
 # We do this once, when the app starts, so that we don't have to do it for every request
+# Initialize a global message queue to communicate with the backend process
+message_queue = None
 ENGINE = get_db_connection(DB_PATH)
 Base.metadata.create_all(ENGINE)
 
@@ -38,8 +41,11 @@ else:
     app = Flask(__name__)
 
 
-def start_app():
+def start_app(msg_queue: Queue = None):
     """Start the Flask app"""
+    global message_queue  # pylint: disable=global-statement
+    if msg_queue:
+        message_queue = msg_queue
     app.run()
 
 
