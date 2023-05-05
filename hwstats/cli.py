@@ -18,7 +18,7 @@ if __name__ == "__main__":
         kwargs={"timeout": TIMEOUT_SECONDS, "db_path": DB_PATH, "msg_queue": msg_queue},
         name="hwstats_metrics_collection",
     )
-    app_process = Process(target=start_app, name="hwstats_web_app")
+    app_process = Process(target=start_app, args=[msg_queue], name="hwstats_web_app")
 
     metrics_process.start()
     app_process.start()
