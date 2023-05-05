@@ -4,7 +4,8 @@ import sys
 from multiprocessing import Queue
 
 from flask import Flask, render_template
-from jinja2 import Environment, PackageLoader
+
+# from jinja2 import Environment, PackageLoader
 from plotly import graph_objects as go
 from plotly.graph_objects import Figure
 from plotly.subplots import make_subplots
@@ -55,8 +56,8 @@ def round_filter(value, precision=2):
 
 
 # Add the round function to the template environment's globals
-env = Environment(loader=PackageLoader(app.name, "templates"))
-env.filters["round"] = round_filter
+# env = Environment(loader=PackageLoader(app.name, "templates"))
+# env.filters["round"] = round_filter
 
 
 @app.route("/")
