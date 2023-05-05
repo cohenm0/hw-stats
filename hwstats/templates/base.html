@@ -23,7 +23,12 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav">
                 <li class="nav-item active">
-                    <a class="nav-link" href="#">About</a>
+                    <a class="nav-link" href="https://github.com/cohenm0/hw-stats#hw-stats">About</a>
+                </li>
+                <li class="nav-item active">
+                    <form class="form-inline" method="post" action="{{ url_for('shutdown') }}">
+                        <button class="btn btn-link nav-link" type="submit">Shutdown</button>
+                    </form>
                 </li>
             </ul>
         </div>

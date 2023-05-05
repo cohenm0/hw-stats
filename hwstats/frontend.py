@@ -1,6 +1,7 @@
 import logging
 import os
 import sys
+from multiprocessing import Queue
 
 from flask import Flask, render_template
 
@@ -22,6 +23,9 @@ from hwstats.models import Base
 
 logger = logging.getLogger(__name__)
 
+# Initialize a global message queue to communicate with the backend process
+message_queue = None
+
 # Build the engine, create the tables if they don't exist, and create a session
 # We do this once, when the app starts, so that we don't have to do it for every request
 ENGINE = get_db_connection(DB_PATH)
@@ -39,8 +43,11 @@ else:
     app = Flask(__name__)
 
 
-def start_app():
+def start_app(msg_queue: Queue = None):
     """Start the Flask app"""
+    global message_queue  # pylint: disable=global-statement
+    if msg_queue:
+        message_queue = msg_queue
     app.run()
 
 
@@ -128,3 +135,12 @@ def get_read_write_plot_fig(pid_hash: str, session: Session, query: callable) ->
     fig.update_yaxes(title_text="<b>secondary</b> yaxis write Data", secondary_y=True)
 
     return fig
+
+
+@app.route("/shutdown", methods=["POST"])
+def shutdown():
+    engine = get_db_connection(DB_PATH)
+    logger.info("Closing database connection...")
+    message_queue.put(True)
+    engine.dispose()  # closes the connection
+    return render_template("shutDown.html")

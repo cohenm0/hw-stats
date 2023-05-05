@@ -1,5 +1,6 @@
 import logging
-from queue import Queue
+from multiprocessing import Queue as mpQueue
+from queue import Empty, Queue
 from sqlite3 import OperationalError
 from threading import Event, Thread
 from time import sleep, time
@@ -16,13 +17,17 @@ logger = logging.getLogger(__name__)
 
 
 def start_metrics_collection(
-    collection_interval: float, timeout: float = 0, db_path: str = DB_PATH
+    collection_interval: float,
+    timeout: float = 0,
+    db_path: str = DB_PATH,
+    msg_queue: mpQueue = None,
 ) -> None:
     """
     Start collecting metrics
     :param collection_interval: How often to collect metrics
     :param timeout: How long to collect metrics for. If 0, collect forever
     :param db_path: Path to the database file
+    :param msg_queue: Multiprocessing queue for receiving messages to stop the metric collection
     """
     engine = get_db_connection(db_path)
     models.Base.metadata.create_all(engine)
@@ -51,7 +56,11 @@ def start_metrics_collection(
                 logger.debug(f"Skipping dead process {_process}")
 
         sleep(collection_interval)
-        if time() - start_time > timeout and timeout != 0:
+        try:
+            kill = msg_queue.get_nowait()
+        except Empty:
+            kill = False
+        if time() - start_time > timeout and timeout != 0 or kill:
             logger.warning("Stopping collection")
             shut_down.set()
             db_writer_thread.join(timeout=collection_interval)
