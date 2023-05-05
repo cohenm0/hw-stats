@@ -1,6 +1,6 @@
 import logging
 from multiprocessing import Queue as mpQueue
-from queue import Empty
+from queue import Empty, Queue
 from sqlite3 import OperationalError
 from threading import Event, Thread
 from time import sleep, time
@@ -32,7 +32,7 @@ def start_metrics_collection(
     models.Base.metadata.create_all(engine)
 
     # We use a queue so that DB writes can be asynchronus to metric collection
-    data_queue = mpQueue()
+    data_queue = Queue()
     shut_down = Event()
     db_writer_thread = Thread(
         target=write_to_db,
@@ -54,17 +54,16 @@ def start_metrics_collection(
             except (psutil.NoSuchProcess, FileNotFoundError):
                 logger.debug(f"Skipping dead process {_process}")
 
-            sleep(collection_interval)
-            if time() - start_time > timeout and timeout != 0:
-                logger.warning("Stopping collection")
-                shut_down.set()
-                db_writer_thread.join(timeout=collection_interval)
-            try:
-                kill = msg_queue.get_nowait()
-            except Empty:
-                kill = False
-            if time() - start_time > timeout and timeout != 0 or kill:
-                return
+        sleep(collection_interval)
+        try:
+            kill = msg_queue.get_nowait()
+        except Empty:
+            kill = False
+        if time() - start_time > timeout and timeout != 0 or kill:
+            logger.warning("Stopping collection")
+            shut_down.set()
+            db_writer_thread.join(timeout=collection_interval)
+            return
 
 
 def get_process_data(process: psutil.Process) -> tuple:
@@ -78,9 +77,7 @@ def get_process_data(process: psutil.Process) -> tuple:
     return (_sysprocess, _cpu, _memory, _disk)
 
 
-def write_to_db(
-    engine: Engine, data_queue: mpQueue, shutdown: Event, interval: float = 0.1
-) -> None:
+def write_to_db(engine: Engine, data_queue: Queue, shutdown: Event, interval: float = 0.1) -> None:
     """Write data from the queue to the database"""
     with Session(engine) as session:
         while not shutdown.is_set():

@@ -22,10 +22,11 @@ from hwstats.models import Base
 
 logger = logging.getLogger(__name__)
 
-# Build the engine, create the tables if they don't exist, and create a session
-# We do this once, when the app starts, so that we don't have to do it for every request
 # Initialize a global message queue to communicate with the backend process
 message_queue = None
+
+# Build the engine, create the tables if they don't exist, and create a session
+# We do this once, when the app starts, so that we don't have to do it for every request
 ENGINE = get_db_connection(DB_PATH)
 Base.metadata.create_all(ENGINE)
 
@@ -139,5 +140,6 @@ def get_read_write_plot_fig(pid_hash: str, session: Session, query: callable) ->
 def shutdown():
     engine = get_db_connection(DB_PATH)
     logger.info("Closing database connection...")
+    message_queue.put(True)
     engine.dispose()  # closes the connection
     return render_template("shutDown.html")
