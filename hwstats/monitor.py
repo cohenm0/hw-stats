@@ -5,6 +5,7 @@ from threading import Event, Thread
 from time import sleep, time
 
 import psutil
+import xxhash
 from sqlalchemy.engine.base import Engine
 from sqlalchemy.orm import Session
 
@@ -59,11 +60,16 @@ def start_metrics_collection(
 
 def get_process_data(process: psutil.Process) -> tuple:
     """Get data for a process"""
-    with process.oneshot():
-        _sysprocess = models.build_sysprocess_from_process(process)
-        _cpu = models.build_cpu_from_process(process)
-        _memory = models.build_memory_from_process(process)
-        _disk = models.build_disk_from_process(process)
+    # Getting process info as a dict uses the oneshot method under the covers. This might be less
+    # efficient than using the oneshot method directly, but for some reason calling the model build
+    # methods seemed to exit the oneshot context manager and lead to bad data.
+    process_dict = process.as_dict()
+    process_dict["pidHash"] = hash_process(process_dict)
+
+    _sysprocess = models.build_sysprocess_from_process(process_dict)
+    _cpu = models.build_cpu_from_process(process_dict)
+    _memory = models.build_memory_from_process(process_dict)
+    _disk = models.build_disk_from_process(process_dict)
 
     return (_sysprocess, _cpu, _memory, _disk)
 
@@ -88,3 +94,9 @@ def write_to_db(engine: Engine, data_queue: Queue, shutdown: Event, interval: fl
         session.commit()
         logger.debug("DB writer thread shutting down")
         return
+
+
+def hash_process(process_dict: dict) -> None:
+    """Hash the process id, name, and create time to get a unique id for the process"""
+    id_str = f"{process_dict['pid']}, {process_dict['name']}, {process_dict['create_time']}"
+    return xxhash.xxh64(id_str).hexdigest()
